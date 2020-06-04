@@ -11,6 +11,7 @@ defmodule HukumSockets.Application do
       HukumSocketsWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: HukumSockets.PubSub},
+      HukumSocketsWeb.Presence,
       # Start the Endpoint (http/https)
       HukumSocketsWeb.Endpoint
       # Start a worker by calling: HukumSockets.Worker.start_link(arg)

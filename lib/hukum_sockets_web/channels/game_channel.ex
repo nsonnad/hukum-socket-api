@@ -1,13 +1,24 @@
 defmodule HukumSocketsWeb.GameChannel do
   use HukumSocketsWeb, :channel
+  alias HukumSocketsWeb.Presence
 
   @impl true
-  def join("game:lobby", payload, socket) do
-    if authorized?(payload) do
-      {:ok, socket}
+  def join("game:lobby", %{"user_name" => user_name}, socket) do
+    if authorized?(socket, user_name) do
+      send(self(), :after_join)
+      {:ok, assign(socket, :user_name, user_name)}
     else
       {:error, %{reason: "unauthorized"}}
     end
+  end
+
+  @impl true
+  def handle_info(:after_join, socket) do
+    {:ok, _} = Presence.track(socket, socket.assigns.user_name, %{
+      online_at: inspect(System.system_time(:second))
+    })
+    push socket, "presence_state", Presence.list(socket)
+    {:noreply, socket}
   end
 
   # Channels can be used in a request/response fashion
@@ -26,7 +37,13 @@ defmodule HukumSocketsWeb.GameChannel do
   end
 
   # Add authorization logic here as required.
-  defp authorized?(_payload) do
-    true
+  defp authorized?(socket, user_name) do
+    !existing_player?(socket, user_name)
+  end
+
+  defp existing_player?(socket, user_name) do
+    socket
+    |> Presence.list()
+    |> Map.has_key?(user_name)
   end
 end
