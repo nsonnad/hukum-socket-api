@@ -40,6 +40,7 @@ defmodule HukumSockets.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
+      {:haiku, "~> 0.3.1"},
       {:hukum_engine, path: "../hukum_engine"}
     ]
   end

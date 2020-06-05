@@ -3,8 +3,8 @@ defmodule HukumSocketsWeb.GameChannel do
   alias HukumSocketsWeb.Presence
 
   @impl true
-  def join("game:lobby", %{"user_name" => user_name}, socket) do
-    if authorized?(socket, user_name) do
+  def join("game:" <> _game_name, %{"user_name" => user_name}, socket) do
+    if number_of_players(socket) < 4 do
       send(self(), :after_join)
       {:ok, assign(socket, :user_name, user_name)}
     else
@@ -21,13 +21,6 @@ defmodule HukumSocketsWeb.GameChannel do
     {:noreply, socket}
   end
 
-  # Channels can be used in a request/response fashion
-  # by sending replies to requests from the client
-  @impl true
-  def handle_in("ping", payload, socket) do
-    {:reply, {:ok, payload}, socket}
-  end
-
   # It is also common to receive messages from the client and
   # broadcast to everyone in the current topic (game:lobby).
   @impl true
@@ -36,14 +29,10 @@ defmodule HukumSocketsWeb.GameChannel do
     {:noreply, socket}
   end
 
-  # Add authorization logic here as required.
-  defp authorized?(socket, user_name) do
-    !existing_player?(socket, user_name)
-  end
-
-  defp existing_player?(socket, user_name) do
+  defp number_of_players(socket) do
     socket
     |> Presence.list()
-    |> Map.has_key?(user_name)
+    |> Map.keys()
+    |> length()
   end
 end

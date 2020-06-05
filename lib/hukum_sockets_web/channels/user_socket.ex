@@ -2,6 +2,7 @@ defmodule HukumSocketsWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
+  channel "lobby:lobby", HukumSocketsWeb.LobbyChannel
   channel "game:*", HukumSocketsWeb.GameChannel
 
   # Socket params are passed from the client and can
