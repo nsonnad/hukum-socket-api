@@ -3,12 +3,12 @@ defmodule HukumSocketsWeb.GameChannel do
   alias HukumSocketsWeb.Presence
 
   @impl true
-  def join("game:" <> _game_name, %{"user_name" => user_name}, socket) do
+  def join("game:" <> game_name, %{"user_name" => user_name}, socket) do
     if number_of_players(socket) < 4 do
       send(self(), :after_join)
-      {:ok, assign(socket, :user_name, user_name)}
+      {:ok, %{ game: get_game(game_name)}, assign(socket, :user_name, user_name)}
     else
-      {:error, %{reason: "unauthorized"}}
+      {:error, %{reason: "game_full"}}
     end
   end
 
@@ -21,13 +21,11 @@ defmodule HukumSocketsWeb.GameChannel do
     {:noreply, socket}
   end
 
-  # It is also common to receive messages from the client and
-  # broadcast to everyone in the current topic (game:lobby).
-  @impl true
-  def handle_in("shout", payload, socket) do
-    broadcast socket, "shout", payload
-    {:noreply, socket}
+  defp get_game(game_name) do
+    HukumEngine.get_game_state(via(game_name))
   end
+
+  defp via(game_name), do: HukumEngine.GameServer.via_tuple(game_name)
 
   defp number_of_players(socket) do
     socket

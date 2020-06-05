@@ -27,6 +27,7 @@ defmodule HukumSocketsWeb.LobbyChannel do
     game_name = Haiku.build(delimiter: "-", range: 99)
     case GameList.add_game(game_name, game_opts) do
       { :ok, new_list } ->
+        HukumEngine.new_game(game_name)
         broadcast(socket, "game_list", %{game_list: new_list})
         {:reply, { :ok, %{game_name: game_name} }, socket}
       {:error, :name_taken } ->

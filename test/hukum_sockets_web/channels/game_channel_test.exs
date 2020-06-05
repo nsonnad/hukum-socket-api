@@ -4,16 +4,22 @@ defmodule HukumSocketsWeb.GameChannelTest do
   #setup do
     #{:ok, _, socket} =
       #HukumSocketsWeb.UserSocket
-      #|> socket("user_id", %{some: :assign})
-      #|> subscribe_and_join(HukumSocketsWeb.GameChannel, "game:lobby")
+      #|> socket("user_name", %{user_name: :assign})
+      #|> subscribe_and_join(HukumSocketsWeb.GameChannel, "game:test-game", %{user_name: "test"})
 
     #%{socket: socket}
   #end
 
-  #test "ping replies with status ok", %{socket: socket} do
-    #ref = push socket, "ping", %{"hello" => "there"}
-    #assert_reply ref, :ok, %{"hello" => "there"}
-  #end
+  test "returns game state on join" do
+    HukumEngine.new_game("test-game")
+
+    {:ok, resp, socket} =
+      HukumSocketsWeb.UserSocket
+      |> socket("user_name", %{user_name: :assign})
+      |> subscribe_and_join(HukumSocketsWeb.GameChannel, "game:test-game", %{user_name: "test"})
+
+    assert resp.game.id == "test-game"
+  end
 
   #test "shout broadcasts to game:lobby", %{socket: socket} do
     #push socket, "shout", %{"hello" => "all"}
