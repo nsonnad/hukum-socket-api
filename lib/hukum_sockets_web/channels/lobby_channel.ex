@@ -23,10 +23,11 @@ defmodule HukumSocketsWeb.LobbyChannel do
   end
 
   @impl true
-  def handle_in("new_game", _payload, socket) do
+  def handle_in("new_game", game_opts, socket) do
     game_name = Haiku.build(delimiter: "-", range: 99)
-    case GameList.add_game(game_name) do
-      :ok ->
+    case GameList.add_game(game_name, game_opts) do
+      { :ok, new_list } ->
+        broadcast(socket, "game_list", %{game_list: new_list})
         {:reply, { :ok, %{game_name: game_name} }, socket}
       {:error, :name_taken } ->
         {:reply, { :error, %{reason: "Game already exists"} }, socket}
