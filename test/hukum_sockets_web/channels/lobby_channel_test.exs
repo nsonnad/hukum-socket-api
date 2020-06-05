@@ -34,15 +34,15 @@ defmodule HukumSocketsWeb.LobbyChannelTest do
     assert_reply ref2, :ok, _
   end
 
-  #test "creating a new game broadcasts all games" do
-    #{:ok, _, socket} =
-      #HukumSocketsWeb.UserSocket
-      #|> socket("user_name", %{user_name: :assign})
-      #|> subscribe_and_join(HukumSocketsWeb.LobbyChannel, "lobby:lobby", %{user_name: "test3"})
+  test "creating a new game broadcasts all games" do
+    {:ok, _, socket} =
+      HukumSocketsWeb.UserSocket
+      |> socket("user_name", %{user_name: :assign})
+      |> subscribe_and_join(HukumSocketsWeb.LobbyChannel, "lobby:lobby", %{user_name: "test3"})
 
-    #push socket, "new_game", %{user_name: "test3", private: false}
-    #assert_broadcast "game_list", %{game_list: _}
-  #end
+    push socket, "new_game", %{user_name: "test3", private: false}
+    assert_broadcast "game_list", %{game_list: _}
+  end
 
   #test "broadcasts are pushed to the client", %{socket: socket} do
     #broadcast_from! socket, "broadcast", %{"some" => "data"}

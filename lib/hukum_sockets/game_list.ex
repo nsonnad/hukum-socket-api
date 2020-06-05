@@ -4,8 +4,8 @@ defmodule HukumSockets.GameList do
   defmodule GameListGame do
     defstruct(
       started_by: nil,
-      players: 1,
-      private: false
+      private: false,
+      open: true
     )
   end
 
@@ -23,6 +23,10 @@ defmodule HukumSockets.GameList do
 
   def join_game(game_name) do
     GenServer.call(__MODULE__, {:join_game, game_name})
+  end
+
+  def set_open(game_name, is_open) do
+    GenServer.call(__MODULE__, {:toggle_open, game_name, is_open})
   end
 
   def get_games() do
@@ -54,21 +58,16 @@ defmodule HukumSockets.GameList do
 
   def handle_call({:join_game, game_name}, _from, game_list) do
     case game_exists?(game_list, game_name) do
-      true ->
-        game = Map.get(game_list, game_name)
-        if game.players < 4 do
-          {:reply, :ok, increment_players(game_list, game_name)}
-        else
-          {:reply, {:error, :game_full}, game_list}
-        end
+      true -> {:reply, :ok, game_list}
       false -> {:reply, {:error, :game_does_not_exist}, game_list}
     end
   end
 
-  defp increment_players(game_list, game_name) do
-    Map.update(game_list, game_name, %GameListGame{}, fn game ->
-      %{game | players: game.players + 1}
+  def handle_call({:set_open, game_name, is_open}, _from, game_list) do
+    new_list = Map.update(game_list, game_name, {}, fn game ->
+      %{game | open: is_open}
     end)
+    {:reply, :ok, new_list}
   end
 
   defp game_exists?(game_list, game_name) do
