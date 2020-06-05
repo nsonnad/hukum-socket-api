@@ -35,9 +35,11 @@ defmodule HukumSocketsWeb.LobbyChannel do
   end
 
   def handle_in("join_game", %{"game_name" => game_name}, socket) do
-    case GameList.game_exists?(game_name) do
+    case GameList.join_game(game_name) do
       :ok ->
         {:reply, :ok, socket}
+      { :error, :game_full } ->
+        {:reply, { :error, %{reason: "game_full"} }, socket}
       { :error, :game_does_not_exist } ->
         {:reply, { :error, %{reason: "game_does_not_exist"} }, socket}
     end

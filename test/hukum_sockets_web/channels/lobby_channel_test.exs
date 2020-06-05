@@ -23,14 +23,14 @@ defmodule HukumSocketsWeb.LobbyChannelTest do
   test "create a new game, return its game_name, add it to GameList, and join it", %{socket: socket} do
     ref = push socket, "new_game", %{user_name: "test", private: false}
     assert_reply ref, :ok, %{:game_name => _}
-    game = Enum.random(GameList.get_games())
+    game = Enum.random(Map.keys(GameList.get_games()))
 
     {:ok, _, socket2} =
       HukumSocketsWeb.UserSocket
       |> socket("user_name", %{user_name: :assign})
       |> subscribe_and_join(HukumSocketsWeb.LobbyChannel, "lobby:lobby", %{user_name: "test2"})
 
-    ref2 = push socket2, "join_game", %{game_name: game.name}
+    ref2 = push socket2, "join_game", %{game_name: game}
     assert_reply ref2, :ok, _
   end
 

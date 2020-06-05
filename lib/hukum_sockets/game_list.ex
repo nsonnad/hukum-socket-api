@@ -5,8 +5,7 @@ defmodule HukumSockets.GameList do
     defstruct(
       started_by: nil,
       players: 1,
-      private: false,
-      name: ""
+      private: false
     )
   end
 
@@ -14,7 +13,7 @@ defmodule HukumSockets.GameList do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
-  def init([]), do: {:ok, MapSet.new()}
+  def init([]), do: {:ok, Map.new()}
 
   # client
 
@@ -22,27 +21,27 @@ defmodule HukumSockets.GameList do
     GenServer.call(__MODULE__, {:add_game, game_name, game_opts})
   end
 
-  def get_games() do
-    GenServer.call(__MODULE__, :get_games)
+  def join_game(game_name) do
+    GenServer.call(__MODULE__, {:join_game, game_name})
   end
 
-  def game_exists?(game_name) do
-    GenServer.call(__MODULE__, { :game_exists?, game_name })
+  def get_games() do
+    GenServer.call(__MODULE__, :get_games)
   end
 
   # server
 
   def handle_call({ :add_game, game_name, %{"user_name" => user_name, "private" => private}}, _from, game_list) do
-    case !check_for_game?(game_list, game_name) do
+    case !game_exists?(game_list, game_name) do
       true ->
-        new_list = MapSet.put(
+        new_list = Map.put(
           game_list,
+          game_name,
           %GameListGame{
-            name: game_name,
             started_by: user_name,
             private: private
-          })
-
+          }
+        )
         { :reply, { :ok, new_list }, new_list }
       false ->
         { :reply, {:error, :name_taken }, game_list }
@@ -53,15 +52,27 @@ defmodule HukumSockets.GameList do
     {:reply, game_list, game_list}
   end
 
-  def handle_call({ :game_exists?, game_name }, _from, game_list) do
-    case check_for_game?(game_list, game_name) do
-      true -> {:reply, :ok, game_list}
+  def handle_call({:join_game, game_name}, _from, game_list) do
+    case game_exists?(game_list, game_name) do
+      true ->
+        game = Map.get(game_list, game_name)
+        if game.players < 4 do
+          {:reply, :ok, increment_players(game_list, game_name)}
+        else
+          {:reply, {:error, :game_full}, game_list}
+        end
       false -> {:reply, {:error, :game_does_not_exist}, game_list}
     end
   end
 
-  defp check_for_game?(game_list, name) do
-    Enum.any?(game_list, fn game -> game.name == name end)
+  defp increment_players(game_list, game_name) do
+    Map.update(game_list, game_name, %GameListGame{}, fn game ->
+      %{game | players: game.players + 1}
+    end)
+  end
+
+  defp game_exists?(game_list, game_name) do
+    Map.has_key?(game_list, game_name)
   end
 
 end
