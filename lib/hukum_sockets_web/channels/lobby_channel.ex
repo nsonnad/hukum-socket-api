@@ -1,12 +1,13 @@
 defmodule HukumSocketsWeb.LobbyChannel do
   use HukumSocketsWeb, :channel
   alias HukumSocketsWeb.Presence
+  alias HukumSockets.GameList
 
   @impl true
   def join("lobby:lobby", %{"user_name" => user_name}, socket) do
     if authorized?(socket, user_name) do
       send(self(), :after_join)
-      {:ok, assign(socket, :user_name, user_name)}
+      {:ok, %{games: GameList.get_games()}, assign(socket, :user_name, user_name)}
     else
       {:error, %{reason: "unauthorized"}}
     end
@@ -23,10 +24,21 @@ defmodule HukumSocketsWeb.LobbyChannel do
 
   @impl true
   def handle_in("new_game", _payload, socket) do
-    game_name = Haiku.build(delimiter: "_")
-    case HukumEngine.new_game(game_name) do
-      {:ok, _pid} -> {:reply, { :ok, %{game_name: game_name} }, socket}
-      {:error, reason} -> {:reply, {:error, %{reason: inspect(reason)}}, socket}
+    game_name = Haiku.build(delimiter: "-", range: 99)
+    case GameList.add_game(game_name) do
+      :ok ->
+        {:reply, { :ok, %{game_name: game_name} }, socket}
+      {:error, :name_taken } ->
+        {:reply, { :error, %{reason: "Game already exists"} }, socket}
+    end
+  end
+
+  def handle_in("join_game", %{"game_name" => game_name}, socket) do
+    case GameList.game_exists?(game_name) do
+      :ok ->
+        {:reply, :ok, socket}
+      { :error, :game_does_not_exist } ->
+        {:reply, { :error, %{reason: "game_does_not_exist"} }, socket}
     end
   end
 

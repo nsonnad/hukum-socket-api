@@ -13,9 +13,9 @@ defmodule HukumSockets.Application do
       {Phoenix.PubSub, name: HukumSockets.PubSub},
       HukumSocketsWeb.Presence,
       # Start the Endpoint (http/https)
-      HukumSocketsWeb.Endpoint
+      HukumSocketsWeb.Endpoint,
       # Start a worker by calling: HukumSockets.Worker.start_link(arg)
-      # {HukumSockets.Worker, arg}
+      {HukumSockets.GameList, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
