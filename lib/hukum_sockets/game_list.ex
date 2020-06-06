@@ -26,7 +26,7 @@ defmodule HukumSockets.GameList do
   end
 
   def set_open(game_name, is_open) do
-    GenServer.call(__MODULE__, {:toggle_open, game_name, is_open})
+    GenServer.call(__MODULE__, {:set_open, game_name, is_open})
   end
 
   def get_games() do
@@ -43,7 +43,7 @@ defmodule HukumSockets.GameList do
           game_name,
           %GameListGame{
             started_by: user_name,
-            private: private
+            open: !private
           }
         )
         { :reply, { :ok, new_list }, new_list }
@@ -64,7 +64,7 @@ defmodule HukumSockets.GameList do
   end
 
   def handle_call({:set_open, game_name, is_open}, _from, game_list) do
-    new_list = Map.update(game_list, game_name, {}, fn game ->
+    new_list = Map.update(game_list, game_name, %{}, fn game ->
       %{game | open: is_open}
     end)
     {:reply, :ok, new_list}
