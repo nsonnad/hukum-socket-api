@@ -7,7 +7,7 @@ defmodule HukumSocketsWeb.LobbyChannel do
   def join("lobby:lobby", %{"user_name" => user_name}, socket) do
     if authorized?(socket, user_name) do
       send(self(), :after_join)
-      {:ok, %{games: GameList.get_open_games()}, assign(socket, :user_name, user_name)}
+      {:ok, %{game_list: GameList.get_open_games()}, assign(socket, :user_name, user_name)}
     else
       {:error, %{reason: "unauthorized"}}
     end
@@ -26,9 +26,9 @@ defmodule HukumSocketsWeb.LobbyChannel do
   def handle_in("new_game", game_opts, socket) do
     game_name = Haiku.build(delimiter: "-", range: 99)
     case GameList.add_game(game_name, game_opts) do
-      { :ok, new_list } ->
+      { :ok, _ } ->
         HukumEngine.new_game(game_name)
-        broadcast(socket, "game_list", %{game_list: new_list})
+        broadcast(socket, "game_list", %{game_list: GameList.get_open_games() })
         {:reply, { :ok, %{game_name: game_name} }, socket}
       {:error, :name_taken } ->
         {:reply, { :error, %{reason: "Game already exists"} }, socket}

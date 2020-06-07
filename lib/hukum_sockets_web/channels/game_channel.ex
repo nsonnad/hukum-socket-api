@@ -60,7 +60,9 @@ defmodule HukumSocketsWeb.GameChannel do
 
   defp get_player_game(game_name) do
     game = HukumEngine.get_game_state(via(game_name))
-    %{ game | players: Enum.into(game.players, %{})}
+    %{ game | players: Keyword.values(game.players)}
+
+    # TODO: remove hands of other players before sending down?
     #players =
       #game.players
       #|> Enum.each(fn {k, p} ->
