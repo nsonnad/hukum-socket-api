@@ -2,7 +2,9 @@ defmodule HukumSockets.GameList do
   use GenServer
 
   defmodule GameListGame do
+    @derive {Jason.Encoder, only: [:name, :started_by]}
     defstruct(
+      name: "",
       started_by: nil,
       private: false,
       open: true
@@ -29,8 +31,8 @@ defmodule HukumSockets.GameList do
     GenServer.call(__MODULE__, {:set_open, game_name, is_open})
   end
 
-  def get_games() do
-    GenServer.call(__MODULE__, :get_games)
+  def get_open_games() do
+    GenServer.call(__MODULE__, :get_open_games)
   end
 
   # server
@@ -42,6 +44,7 @@ defmodule HukumSockets.GameList do
           game_list,
           game_name,
           %GameListGame{
+            name: game_name,
             started_by: user_name,
             open: !private
           }
@@ -52,8 +55,14 @@ defmodule HukumSockets.GameList do
     end
   end
 
-  def handle_call(:get_games, _from, game_list) do
-    {:reply, game_list, game_list}
+  def handle_call(:get_open_games, _from, game_list) do
+    open_games =
+      game_list
+      |> Enum.reject(fn {_k, g} -> g.open == false end)
+      |> Enum.into(%{})
+      |> Map.values()
+
+    {:reply, open_games, game_list}
   end
 
   def handle_call({:join_game, game_name}, _from, game_list) do

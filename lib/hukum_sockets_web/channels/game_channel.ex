@@ -2,6 +2,9 @@ defmodule HukumSocketsWeb.GameChannel do
   use HukumSocketsWeb, :channel
   alias HukumSocketsWeb.Presence
   alias HukumSockets.GameList
+  require Protocol
+
+  Protocol.derive(Jason.Encoder, HukumEngine.Player)
 
   @impl true
   def join("game:" <> game_name, %{"user_name" => user_name}, socket) do
@@ -56,7 +59,8 @@ defmodule HukumSocketsWeb.GameChannel do
   end
 
   defp get_player_game(game_name) do
-    HukumEngine.get_game_state(via(game_name))
+    game = HukumEngine.get_game_state(via(game_name))
+    %{ game | players: Enum.into(game.players, %{})}
     #players =
       #game.players
       #|> Enum.each(fn {k, p} ->

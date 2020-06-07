@@ -7,7 +7,7 @@ defmodule HukumSocketsWeb.LobbyChannel do
   def join("lobby:lobby", %{"user_name" => user_name}, socket) do
     if authorized?(socket, user_name) do
       send(self(), :after_join)
-      {:ok, %{games: GameList.get_games()}, assign(socket, :user_name, user_name)}
+      {:ok, %{games: GameList.get_open_games()}, assign(socket, :user_name, user_name)}
     else
       {:error, %{reason: "unauthorized"}}
     end
