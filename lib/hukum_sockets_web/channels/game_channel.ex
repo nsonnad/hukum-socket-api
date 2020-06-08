@@ -3,6 +3,7 @@ defmodule HukumSocketsWeb.GameChannel do
   alias HukumSocketsWeb.Presence
   alias HukumSockets.GameList
   require Protocol
+  require Logger
 
   Protocol.derive(Jason.Encoder, HukumEngine.Player)
 
@@ -50,6 +51,26 @@ defmodule HukumSocketsWeb.GameChannel do
       {:error, :team_full} ->
         {:reply, {:error, %{reason: "team_full" }}, socket}
     end
+  end
+
+  @impl true
+  def terminate(reason, socket) do
+    Logger.info("#{socket.assigns.user_name} exiting game #{socket.assigns.game_name} with reason: #{inspect reason}")
+    HukumEngine.remove_player(via(socket.assigns.game_name), socket.assigns.user_name)
+
+    if number_of_players(socket) <= 1 do
+      HukumEngine.end_game(via(socket.assigns.game_name))
+      GameList.remove_game(socket.assigns.game_name)
+      HukumSocketsWeb.Endpoint.broadcast_from!(
+        self(),
+        "lobby:lobby",
+        "game_list",
+        %{game_list: GameList.get_open_games() }
+      )
+    else
+      broadcast_game(socket)
+    end
+
   end
 
   # TODO: randomly assign teams after a period of no choosing

@@ -9,7 +9,7 @@ defmodule HukumSocketsWeb.LobbyChannel do
       send(self(), :after_join)
       {:ok, %{game_list: GameList.get_open_games()}, assign(socket, :user_name, user_name)}
     else
-      {:error, %{reason: "unauthorized"}}
+      {:error, %{reason: "username_taken"}}
     end
   end
 
@@ -31,7 +31,7 @@ defmodule HukumSocketsWeb.LobbyChannel do
         broadcast(socket, "game_list", %{game_list: GameList.get_open_games() })
         {:reply, { :ok, %{game_name: game_name} }, socket}
       {:error, :name_taken } ->
-        {:reply, { :error, %{reason: "Game already exists"} }, socket}
+        {:reply, { :error, %{reason: "game_already_exists"} }, socket}
     end
   end
 

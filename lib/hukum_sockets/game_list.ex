@@ -23,6 +23,10 @@ defmodule HukumSockets.GameList do
     GenServer.call(__MODULE__, {:add_game, game_name, game_opts})
   end
 
+  def remove_game(game_name) do
+    GenServer.cast(__MODULE__, {:remove_game, game_name})
+  end
+
   def join_game(game_name) do
     GenServer.call(__MODULE__, {:join_game, game_name})
   end
@@ -77,6 +81,10 @@ defmodule HukumSockets.GameList do
       %{game | open: is_open}
     end)
     {:reply, :ok, new_list}
+  end
+
+  def handle_cast({:remove_game, game_name}, game_list) do
+    {:noreply, Map.delete(game_list, game_name)}
   end
 
   defp game_exists?(game_list, game_name) do

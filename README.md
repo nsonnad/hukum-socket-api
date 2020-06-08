@@ -2,13 +2,14 @@
 
 ## Master TODO across all 3 repos:
 
-- [ ] leaving a room/topic/channel should remove a player from a game (so we need
+- [x] leaving a room/topic/channel should remove a player from a game (so we need
       `HukumEngine.remove_player`)
       -> maybe we can just use `presence_diff` to do this, or otherwise use
       presence
 
-- [ ] figure out how to display errors like `username taken` or `game doesn't
+- [\] figure out how to display errors like `username taken` or `game doesn't
       exist`
+      -> figured out how but have not actually implemented it
 - [ ] UI for choosing teams
 - [ ] phoenix needs to handle all possible player actions
 - [ ] Elm needs to send all possible player actions
