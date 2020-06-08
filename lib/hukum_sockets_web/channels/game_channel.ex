@@ -53,11 +53,48 @@ defmodule HukumSocketsWeb.GameChannel do
     end
   end
 
+  def handle_in("call_or_pass", %{"choice" => choice}, socket) do
+    HukumEngine.call_or_pass(
+      via(socket.assigns.game_name),
+      socket.assigns.user_name,
+      choice
+    )
+    broadcast_game(socket)
+  end
+
+  def handle_in("play_first_card", %{"card" => card}, socket) do
+    HukumEngine.play_first_card(
+      via(socket.assigns.game_name),
+      socket.assigns.user_name,
+      card
+    )
+    broadcast_game(socket)
+  end
+
+  def handle_in("call_trump", %{"trump" => trump}, socket) do
+    HukumEngine.call_trump(
+      via(socket.assigns.game_name),
+      socket.assigns.user_name,
+      trump
+    )
+    broadcast_game(socket)
+  end
+
+  def handle_in("play_card", %{"card" => card}, socket) do
+    HukumEngine.play_card(
+      via(socket.assigns.game_name),
+      socket.assigns.user_name,
+      card
+    )
+    broadcast_game(socket)
+  end
+
   @impl true
   def terminate(reason, socket) do
     Logger.info("#{socket.assigns.user_name} exiting game #{socket.assigns.game_name} with reason: #{inspect reason}")
     HukumEngine.remove_player(via(socket.assigns.game_name), socket.assigns.user_name)
 
+    # clean up the game if this is the only/last person in the channel
     if number_of_players(socket) <= 1 do
       HukumEngine.end_game(via(socket.assigns.game_name))
       GameList.remove_game(socket.assigns.game_name)

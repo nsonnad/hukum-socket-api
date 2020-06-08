@@ -44,12 +44,6 @@ defmodule HukumSocketsWeb.LobbyChannel do
     end
   end
 
-  #@impl true
-  #def handle_in("shout", payload, socket) do
-    #broadcast socket, "shout", payload
-    #{:noreply, socket}
-  #end
-
   # Add authorization logic here as required.
   defp authorized?(socket, user_name) do
     !existing_player?(socket, user_name)
