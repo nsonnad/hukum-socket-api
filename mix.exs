@@ -41,7 +41,8 @@ defmodule HukumSockets.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:haiku, "~> 0.3.1"},
-      {:hukum_engine, path: "../hukum_engine"}
+      {:hukum_engine, git: "https://github.com/nsonnad/hukum-engine.git"}
+      #{:hukum_engine, path: "../hukum_engine"}
     ]
   end
 
