@@ -15,6 +15,7 @@ config :hukum_sockets, HukumSocketsWeb.Endpoint,
   server: true, # Without this line, your app will not start the web server!
   secret_key_base: "${SECRET_KEY_BASE}",
   url: [host: "${APP_NAME}.gigalixirapp.com", port: 443],
+  check_origin: ["https://${APP_NAME}.gigalixirapp.com", "https://www.${APP_NAME}.gigalixirapp.com"],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
