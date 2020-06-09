@@ -29,7 +29,7 @@ defmodule HukumSocketsWeb.GameChannel do
      GameList.set_open(socket.assigns.game_name, false)
     end
 
-    broadcast_game(socket)
+    broadcast_game(socket, get_game(socket.assigns.game_name))
     push socket, "presence_state", Presence.list(socket)
     {:noreply, socket}
   end
@@ -43,10 +43,10 @@ defmodule HukumSocketsWeb.GameChannel do
     ) do
       {:ok, %{team_counts: [2, 2] }} ->
         HukumEngine.confirm_teams(via(socket.assigns.game_name))
-        broadcast_game(socket)
+        broadcast_game(socket, get_game(socket.assigns.game_name))
         {:reply, :ok, socket}
       {:ok, _ } ->
-        broadcast_game(socket)
+        broadcast_game(socket, get_game(socket.assigns.game_name))
         {:reply, :ok, socket}
       {:error, :team_full} ->
         {:reply, {:error, %{reason: "team_full" }}, socket}
@@ -54,39 +54,52 @@ defmodule HukumSocketsWeb.GameChannel do
   end
 
   def handle_in("call_or_pass", %{"choice" => choice}, socket) do
-    HukumEngine.call_or_pass(
+    case HukumEngine.call_or_pass(
       via(socket.assigns.game_name),
       socket.assigns.user_name,
       choice
-    )
-    broadcast_game(socket)
+    ) do
+      {:ok, game} -> broadcast_game(socket, game)
+      {:error, :not_your_turn} -> {:reply, {:error, %{reason: "not_your_turn"}}, socket}
+      :error -> {:reply, :error, socket}
+    end
   end
 
   def handle_in("play_first_card", %{"card" => card}, socket) do
-    HukumEngine.play_first_card(
+    case HukumEngine.play_first_card(
       via(socket.assigns.game_name),
       socket.assigns.user_name,
       card
-    )
-    broadcast_game(socket)
+    ) do
+      {:ok, game} -> broadcast_game(socket, game)
+      {:error, :not_your_turn} -> {:reply, {:error, %{reason: "not_your_turn"}}, socket}
+      :error -> {:reply, :error, socket}
+    end
   end
 
   def handle_in("call_trump", %{"trump" => trump}, socket) do
-    HukumEngine.call_trump(
+    case HukumEngine.call_trump(
       via(socket.assigns.game_name),
       socket.assigns.user_name,
       trump
-    )
-    broadcast_game(socket)
+    ) do
+      {:ok, game} -> broadcast_game(socket, game)
+      {:error, :not_your_turn} -> {:reply, {:error, %{reason: "not_your_turn"}}, socket}
+      :error -> {:reply, :error, socket}
+    end
   end
 
   def handle_in("play_card", %{"card" => card}, socket) do
-    HukumEngine.play_card(
+    case HukumEngine.play_card(
       via(socket.assigns.game_name),
       socket.assigns.user_name,
       card
-    )
-    broadcast_game(socket)
+    ) do
+      {:ok, game} -> broadcast_game(socket, game)
+      {:error, :not_your_turn} -> {:reply, {:error, %{reason: "not_your_turn"}}, socket}
+      {:error, :illegal_card} -> {:reply, {:error, %{reason: "illegal_card"}}, socket}
+      :error -> {:reply, :error, socket}
+    end
   end
 
   @impl true
@@ -105,33 +118,26 @@ defmodule HukumSocketsWeb.GameChannel do
         %{game_list: GameList.get_open_games() }
       )
     else
-      broadcast_game(socket)
+      broadcast_game(socket, get_game(socket.assigns.game_name))
     end
 
   end
 
   # TODO: randomly assign teams after a period of no choosing
 
-  defp broadcast_game(socket) do
-    broadcast(socket, "game_state", %{game: get_player_game(socket.assigns.game_name)})
+  defp broadcast_game(socket, game) do
+    broadcast(socket, "game_state", %{game: clean_game(game)})
   end
 
-  defp get_player_game(game_name) do
-    game = HukumEngine.get_game_state(via(game_name))
+  defp get_game(game_name) do
+    case HukumEngine.get_game_state(via(game_name)) do
+      {:ok, game} -> game
+      :error -> {:error, %{reason: "get_game_state_failed"}}
+    end
+  end
+
+  defp clean_game(game) do
     %{ game | players: Keyword.values(game.players)}
-
-    # TODO: remove hands of other players before sending down?
-    #players =
-      #game.players
-      #|> Enum.each(fn {k, p} ->
-        #if k == String.to_atom(socket.assigns.user_name) do
-          #p
-        #else
-          #%{ p | hand: length(p.hand)}
-        #end
-      #end)
-
-    #%{game | players: players}
   end
 
   defp assign_game(socket, game_name, user_name) do
