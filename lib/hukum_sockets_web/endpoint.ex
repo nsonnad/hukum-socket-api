@@ -11,7 +11,7 @@ defmodule HukumSocketsWeb.Endpoint do
   ]
 
   socket "/socket", HukumSocketsWeb.UserSocket,
-    websocket: true,
+    websocket: [ check_origin: [ "//hukum.gigalixirapp.com" ]],
     longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
