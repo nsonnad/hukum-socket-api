@@ -6,6 +6,7 @@ defmodule HukumSocketsWeb.GameChannel do
   require Logger
 
   Protocol.derive(Jason.Encoder, HukumEngine.Player)
+  Protocol.derive(Jason.Encoder, HukumEngine.Player)
 
   @impl true
   def join("game:" <> game_name, %{"user_name" => user_name}, socket) do
@@ -57,23 +58,15 @@ defmodule HukumSocketsWeb.GameChannel do
     case HukumEngine.call_or_pass(
       via(socket.assigns.game_name),
       socket.assigns.user_name,
-      choice
+      String.to_atom(choice)
     ) do
-      {:ok, game} -> broadcast_game(socket, game)
-      {:error, :not_your_turn} -> {:reply, {:error, %{reason: "not_your_turn"}}, socket}
-      :error -> {:reply, :error, socket}
-    end
-  end
-
-  def handle_in("play_first_card", %{"card" => card}, socket) do
-    case HukumEngine.play_first_card(
-      via(socket.assigns.game_name),
-      socket.assigns.user_name,
-      card
-    ) do
-      {:ok, game} -> broadcast_game(socket, game)
-      {:error, :not_your_turn} -> {:reply, {:error, %{reason: "not_your_turn"}}, socket}
-      :error -> {:reply, :error, socket}
+      {:ok, game} ->
+        broadcast_game(socket, game)
+        {:reply, :ok, socket}
+      {:error, :not_your_turn} ->
+        {:reply, {:error, %{reason: "not_your_turn"}}, socket}
+      :error ->
+        {:reply, :error, socket}
     end
   end
 
@@ -81,24 +74,33 @@ defmodule HukumSocketsWeb.GameChannel do
     case HukumEngine.call_trump(
       via(socket.assigns.game_name),
       socket.assigns.user_name,
-      trump
+      String.to_atom(trump)
     ) do
-      {:ok, game} -> broadcast_game(socket, game)
-      {:error, :not_your_turn} -> {:reply, {:error, %{reason: "not_your_turn"}}, socket}
-      :error -> {:reply, :error, socket}
+      {:ok, game} ->
+        broadcast_game(socket, game)
+        {:reply, :ok, socket}
+      {:error, :not_your_turn} ->
+        {:reply, {:error, %{reason: "not_your_turn"}}, socket}
+      :error ->
+        {:reply, :error, socket}
     end
   end
 
-  def handle_in("play_card", %{"card" => card}, socket) do
+  def handle_in("play_card", %{"card" => %{"rank" => rank, "suit" => suit}}, socket) do
     case HukumEngine.play_card(
       via(socket.assigns.game_name),
       socket.assigns.user_name,
-      card
+      %{ suit: String.to_atom(suit), rank: String.to_atom(rank) }
     ) do
-      {:ok, game} -> broadcast_game(socket, game)
-      {:error, :not_your_turn} -> {:reply, {:error, %{reason: "not_your_turn"}}, socket}
-      {:error, :illegal_card} -> {:reply, {:error, %{reason: "illegal_card"}}, socket}
-      :error -> {:reply, :error, socket}
+      {:ok, game} ->
+        broadcast_game(socket, game)
+        {:reply, :ok, socket}
+      {:error, :not_your_turn} ->
+        {:reply, {:error, %{reason: "not_your_turn"}}, socket}
+      {:error, :illegal_card} ->
+        {:reply, {:error, %{reason: "illegal_card"}}, socket}
+      :error ->
+        {:reply, :error, socket}
     end
   end
 
