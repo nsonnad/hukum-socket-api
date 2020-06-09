@@ -9,6 +9,10 @@ defmodule HukumSocketsWeb.Router do
     pipe_through :api
   end
 
+  scope "/", HukumSocketsWeb do
+    get "/", SpaController, :index
+  end
+
   # Enables LiveDashboard only for development
   #
   # If you want to use the LiveDashboard in production, you should put
