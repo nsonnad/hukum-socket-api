@@ -1,13 +1,14 @@
 {
-  "main.css": "/static/css/main.8362041e.chunk.css",
-  "main.js": "/static/js/main.6a368456.chunk.js",
-  "main.js.map": "/static/js/main.6a368456.chunk.js.map",
+  "main.css": "/static/css/main.79916df7.chunk.css",
+  "main.js": "/static/js/main.1b549fe6.chunk.js",
+  "main.js.map": "/static/js/main.1b549fe6.chunk.js.map",
   "runtime~main.js": "/static/js/runtime~main.1b922744.js",
   "runtime~main.js.map": "/static/js/runtime~main.1b922744.js.map",
   "vendors~main.css": "/static/css/vendors~main.15602100.chunk.css",
   "vendors~main.js": "/static/js/vendors~main.4d57fe2b.chunk.js",
   "vendors~main.js.map": "/static/js/vendors~main.4d57fe2b.chunk.js.map",
   "./service-worker.js": "/./service-worker.js",
+  ".DS_Store": "/.DS_Store",
   "cards/Ace_of_Clubs.png": "/cards/Ace_of_Clubs.png",
   "cards/Ace_of_Diamonds.png": "/cards/Ace_of_Diamonds.png",
   "cards/Ace_of_Hearts.png": "/cards/Ace_of_Hearts.png",
@@ -68,6 +69,6 @@
   "index.html": "/index.html",
   "logo.svg": "/logo.svg",
   "manifest.json": "/manifest.json",
-  "precache-manifest.d9f559151ce88c0a9e888719c6522535.js": "/precache-manifest.d9f559151ce88c0a9e888719c6522535.js",
+  "precache-manifest.eddcca01ed8ef7f6de56b3d6831c75b8.js": "/precache-manifest.eddcca01ed8ef7f6de56b3d6831c75b8.js",
   "static/media/index.css": "/static/media/roboto-latin-900italic.ebf6d164.woff2"
 }
