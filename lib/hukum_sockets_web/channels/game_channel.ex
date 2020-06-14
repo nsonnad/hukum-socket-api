@@ -16,7 +16,9 @@ defmodule HukumSocketsWeb.GameChannel do
       socket = assign_game(socket, game_name, user_name)
       {:ok, socket}
     else
-      {:error, %{reason: "game_full"}}
+      send(self(), :after_join)
+      socket = assign_game(socket, game_name, user_name)
+      {:ok, socket}
     end
   end
 
@@ -25,10 +27,6 @@ defmodule HukumSocketsWeb.GameChannel do
     {:ok, _} = Presence.track(socket, socket.assigns.user_name, %{
       online_at: inspect(System.system_time(:second))
     })
-
-    if number_of_players(socket) == 4 do
-     GameList.set_open(socket.assigns.game_name, false)
-    end
 
     broadcast_game(socket, get_game(socket.assigns.game_name))
     push socket, "presence_state", Presence.list(socket)
