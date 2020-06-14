@@ -1,7 +1,7 @@
 {
   "main.css": "/static/css/main.79916df7.chunk.css",
-  "main.js": "/static/js/main.1b549fe6.chunk.js",
-  "main.js.map": "/static/js/main.1b549fe6.chunk.js.map",
+  "main.js": "/static/js/main.38899bba.chunk.js",
+  "main.js.map": "/static/js/main.38899bba.chunk.js.map",
   "runtime~main.js": "/static/js/runtime~main.1b922744.js",
   "runtime~main.js.map": "/static/js/runtime~main.1b922744.js.map",
   "vendors~main.css": "/static/css/vendors~main.15602100.chunk.css",
@@ -69,6 +69,6 @@
   "index.html": "/index.html",
   "logo.svg": "/logo.svg",
   "manifest.json": "/manifest.json",
-  "precache-manifest.eddcca01ed8ef7f6de56b3d6831c75b8.js": "/precache-manifest.eddcca01ed8ef7f6de56b3d6831c75b8.js",
+  "precache-manifest.27a38ed10813faa1606634617546adf3.js": "/precache-manifest.27a38ed10813faa1606634617546adf3.js",
   "static/media/index.css": "/static/media/roboto-latin-900italic.ebf6d164.woff2"
 }
